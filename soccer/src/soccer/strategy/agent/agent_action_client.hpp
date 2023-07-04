@@ -13,6 +13,7 @@
 #include <rj_convert/ros_convert.hpp>
 #include <rj_msgs/msg/alive_robots.hpp>
 #include <rj_msgs/msg/coach_state.hpp>
+#include <rj_msgs/msg/goalie.hpp>
 #include <rj_msgs/msg/game_settings.hpp>
 #include <rj_msgs/msg/position_assignment.hpp>
 #include <rj_msgs/msg/world_state.hpp>
@@ -60,6 +61,7 @@ private:
     rclcpp::Subscription<rj_msgs::msg::FieldDimensions>::SharedPtr field_dimensions_sub_;
     rclcpp::Subscription<rj_msgs::msg::AliveRobots>::SharedPtr alive_robots_sub_;
     rclcpp::Subscription<rj_msgs::msg::GameSettings>::SharedPtr game_settings_sub_;
+    rclcpp::Subscription<rj_msgs::msg::Goalie>::SharedPtr goalie_sub_;
     // TODO(Kevin): communication module pub/sub here (e.g. passing)
 
     // callbacks for subs
@@ -177,6 +179,9 @@ private:
     [[nodiscard]] WorldState* world_state();
     WorldState last_world_state_;
     mutable std::mutex world_state_mutex_;
+
+    // store the last goalie id received from goalie Subscriber
+    int last_goalie_id_ = 0;
 };  // class AgentActionClient
 
 }  // namespace strategy

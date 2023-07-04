@@ -101,7 +101,7 @@ void PlannerNode::execute(const std::shared_ptr<GoalHandleRobotMove> goal_handle
     auto& robot_task = server_task_states_.at(robot_id);
 
     // loop until goal is done (SUCCEEDED or CANCELED)
-    for (;;) {
+    while (rclcpp::ok()) {
         auto& new_task_ready = robot_task.new_task_waiting_signal;
         // check if there is a new goal
         if (new_task_ready) {
