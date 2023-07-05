@@ -8,6 +8,7 @@
 
 #include <rj_msgs/action/robot_move.hpp>
 
+#include "line_runner.hpp"
 #include "planning/instant.hpp"
 #include "position.hpp"
 #include "rj_common/field_dimensions.hpp"
@@ -16,7 +17,6 @@
 #include "rj_geometry/geometry_conversions.hpp"
 #include "rj_geometry/point.hpp"
 #include "waller.hpp"
-#include "line_runner.hpp"
 
 namespace strategy {
 

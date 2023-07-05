@@ -15,7 +15,7 @@ void fill_robot_obstacle(const RobotState& robot, rj_geometry::Point& obs_center
     // inflate obs radius if needed
     double vel_mag = robot.velocity.linear().mag();
     double safety_margin = vel_mag * obs_radius_inflation;
-    obs_radius = kRobotRadius + (kRobotRadius * safety_margin);
+    obs_radius = kRobotRadius + 0.05 + (kRobotRadius * safety_margin);
 }
 
 void fill_obstacles(const PlanRequest& in, rj_geometry::ShapeSet* out_static,

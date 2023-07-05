@@ -10,7 +10,6 @@ std::optional<RobotIntent> Defense::derived_get_task(RobotIntent intent) {
 }
 
 Defense::State Defense::update_state() {
-
     /* TESTING: LINE RUNNER */
 
     State next_state = current_state_;
@@ -26,8 +25,6 @@ Defense::State Defense::update_state() {
             }
     }
     return next_state;
-
-
 
     // State next_state = current_state_;
     // // handle transitions between states
@@ -82,16 +79,13 @@ Defense::State Defense::update_state() {
 }
 
 std::optional<RobotIntent> Defense::state_to_task(RobotIntent intent) {
-    
     /* TESTING: LINE RUNNER */
-   
-    bool going_up {current_state_ == SEARCHING};
 
-    LineRunner line_runner {robot_id_, going_up};
+    bool going_up{current_state_ == SEARCHING};
+
+    LineRunner line_runner{robot_id_, going_up};
     return line_runner.get_task(intent, world_state(), this->field_dimensions_);
 
-    
-    
     // if (current_state_ == IDLING) {
     //     auto empty_motion_cmd = planning::MotionCommand{};
     //     intent.motion_command = empty_motion_cmd;
@@ -110,8 +104,8 @@ std::optional<RobotIntent> Defense::state_to_task(RobotIntent intent) {
     //         auto motion_instance =
     //             planning::LinearMotionInstant{robot_position, rj_geometry::Point{0.0, 0.0}};
     //         auto face_ball = planning::FaceBall{};
-    //         auto face_ball_cmd = planning::MotionCommand{"path_target", motion_instance, face_ball};
-    //         intent.motion_command = face_ball_cmd;
+    //         auto face_ball_cmd = planning::MotionCommand{"path_target", motion_instance,
+    //         face_ball}; intent.motion_command = face_ball_cmd;
     //     } else {
     //         // intercept the ball
     //         chasing_ball = true;
