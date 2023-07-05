@@ -6,7 +6,7 @@ std::optional<RobotIntent> LineRunner::get_task(RobotIntent intent, const WorldS
                                                                                   
     double y = 2.0;
     if (going_up_) {
-        y = 6.0;
+        y = 4.0;
     }
     rj_geometry::Point target_pt{(6.0 * (line_num_ * 0.1) - 2.0), y};
 
