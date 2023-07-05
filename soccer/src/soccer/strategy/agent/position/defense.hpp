@@ -16,6 +16,7 @@
 #include "rj_geometry/geometry_conversions.hpp"
 #include "rj_geometry/point.hpp"
 #include "waller.hpp"
+#include "line_runner.hpp"
 
 namespace strategy {
 

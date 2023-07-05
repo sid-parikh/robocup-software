@@ -10,118 +10,147 @@ std::optional<RobotIntent> Defense::derived_get_task(RobotIntent intent) {
 }
 
 Defense::State Defense::update_state() {
+
+    /* TESTING: LINE RUNNER */
+
     State next_state = current_state_;
-    // handle transitions between states
-    WorldState* world_state = this->world_state();
-
-    rj_geometry::Point robot_position = world_state->get_robot(true, robot_id_).pose.position();
-    rj_geometry::Point ball_position = world_state->ball.position;
-    double distance_to_ball = robot_position.dist_to(ball_position);
-
-    if (current_state_ != WALLING && current_state_ != JOINING_WALL && waller_id_ != -1) {
-        send_leave_wall_request();
-        walling_robots_ = {(u_int8_t)robot_id_};
-        waller_id_ = -1;
-    }
-
     switch (current_state_) {
-        case IDLING:
-            break;
-        case JOINING_WALL:
-            send_join_wall_request();
-            next_state = WALLING;
-            walling_robots_ = {(u_int8_t)robot_id_};
-            break;
-        case WALLING:
-            break;
         case SEARCHING:
-            break;
-        case RECEIVING:
-            // transition to idling if we are close enough to the ball
-            if (distance_to_ball < ball_receive_distance_) {
-                next_state = IDLING;
-            }
-            break;
-        case PASSING:
-            // transition to idling if we no longer have the ball (i.e. it was passed or it was
-            // stolen)
             if (check_is_done()) {
-                next_state = IDLING;
-            }
-
-            if (distance_to_ball > ball_lost_distance_) {
-                next_state = IDLING;
+                next_state = RECEIVING;
             }
             break;
-        case FACING:
+        default:
             if (check_is_done()) {
-                next_state = IDLING;
+                next_state = SEARCHING;
             }
     }
-
     return next_state;
+
+
+
+    // State next_state = current_state_;
+    // // handle transitions between states
+    // WorldState* world_state = this->world_state();
+
+    // rj_geometry::Point robot_position = world_state->get_robot(true, robot_id_).pose.position();
+    // rj_geometry::Point ball_position = world_state->ball.position;
+    // double distance_to_ball = robot_position.dist_to(ball_position);
+
+    // if (current_state_ != WALLING && current_state_ != JOINING_WALL && waller_id_ != -1) {
+    //     send_leave_wall_request();
+    //     walling_robots_ = {(u_int8_t)robot_id_};
+    //     waller_id_ = -1;
+    // }
+
+    // switch (current_state_) {
+    //     case IDLING:
+    //         break;
+    //     case JOINING_WALL:
+    //         send_join_wall_request();
+    //         next_state = WALLING;
+    //         walling_robots_ = {(u_int8_t)robot_id_};
+    //         break;
+    //     case WALLING:
+    //         break;
+    //     case SEARCHING:
+    //         break;
+    //     case RECEIVING:
+    //         // transition to idling if we are close enough to the ball
+    //         if (distance_to_ball < ball_receive_distance_) {
+    //             next_state = IDLING;
+    //         }
+    //         break;
+    //     case PASSING:
+    //         // transition to idling if we no longer have the ball (i.e. it was passed or it was
+    //         // stolen)
+    //         if (check_is_done()) {
+    //             next_state = IDLING;
+    //         }
+
+    //         if (distance_to_ball > ball_lost_distance_) {
+    //             next_state = IDLING;
+    //         }
+    //         break;
+    //     case FACING:
+    //         if (check_is_done()) {
+    //             next_state = IDLING;
+    //         }
+    // }
+
+    // return next_state;
 }
 
 std::optional<RobotIntent> Defense::state_to_task(RobotIntent intent) {
-    if (current_state_ == IDLING) {
-        auto empty_motion_cmd = planning::MotionCommand{};
-        intent.motion_command = empty_motion_cmd;
-        return intent;
-        // DO NOTHING
-    } else if (current_state_ == SEARCHING) {
-        // TODO(https://app.clickup.com/t/8677qektb): Define defensive searching behavior
-    } else if (current_state_ == RECEIVING) {
-        // check how far we are from the ball
-        // TODO(https://app.clickup.com/t/8677rrgjn): Convert RECEIVING state into role_interface
-        rj_geometry::Point robot_position =
-            world_state()->get_robot(true, robot_id_).pose.position();
-        rj_geometry::Point ball_position = world_state()->ball.position;
-        double distance_to_ball = robot_position.dist_to(ball_position);
-        if (distance_to_ball > max_receive_distance && !chasing_ball) {
-            auto motion_instance =
-                planning::LinearMotionInstant{robot_position, rj_geometry::Point{0.0, 0.0}};
-            auto face_ball = planning::FaceBall{};
-            auto face_ball_cmd = planning::MotionCommand{"path_target", motion_instance, face_ball};
-            intent.motion_command = face_ball_cmd;
-        } else {
-            // intercept the ball
-            chasing_ball = true;
-            auto collect_cmd = planning::MotionCommand{"collect"};
-            intent.motion_command = collect_cmd;
-        }
-        return intent;
-    } else if (current_state_ == PASSING) {
-        // attempt to pass the ball to the target robot
-        rj_geometry::Point target_robot_pos =
-            world_state()->get_robot(true, target_robot_id).pose.position();
-        planning::LinearMotionInstant target{target_robot_pos};
-        auto line_kick_cmd = planning::MotionCommand{"line_kick", target};
-        intent.motion_command = line_kick_cmd;
-        intent.shoot_mode = RobotIntent::ShootMode::KICK;
-        // NOTE: Check we can actually use break beams
-        intent.trigger_mode = RobotIntent::TriggerMode::ON_BREAK_BEAM;
-        // TODO: Adjust the kick speed based on distance
-        intent.kick_speed = 4.0;
-        intent.is_active = true;
-        return intent;
-    } else if (current_state_ == WALLING) {
-        if (!walling_robots_.empty()) {
-            Waller waller{waller_id_, (int)walling_robots_.size()};
-            return waller.get_task(intent, world_state(), this->field_dimensions_);
-        }
-    } else if (current_state_ = FACING) {
-        rj_geometry::Point robot_position =
-            world_state()->get_robot(true, robot_id_).pose.position();
-        auto current_location_instant =
-            planning::LinearMotionInstant{robot_position, rj_geometry::Point{0.0, 0.0}};
-        auto face_ball = planning::FaceBall{};
-        auto face_ball_cmd =
-            planning::MotionCommand{"path_target", current_location_instant, face_ball};
-        intent.motion_command = face_ball_cmd;
-        return intent;
-    }
+    
+    /* TESTING: LINE RUNNER */
+   
+    bool going_up {current_state_ == SEARCHING};
 
-    return std::nullopt;
+    LineRunner line_runner {robot_id_, going_up};
+    return line_runner.get_task(intent, world_state(), this->field_dimensions_);
+
+    
+    
+    // if (current_state_ == IDLING) {
+    //     auto empty_motion_cmd = planning::MotionCommand{};
+    //     intent.motion_command = empty_motion_cmd;
+    //     return intent;
+    //     // DO NOTHING
+    // } else if (current_state_ == SEARCHING) {
+    //     // TODO(https://app.clickup.com/t/8677qektb): Define defensive searching behavior
+    // } else if (current_state_ == RECEIVING) {
+    //     // check how far we are from the ball
+    //     // TODO(https://app.clickup.com/t/8677rrgjn): Convert RECEIVING state into role_interface
+    //     rj_geometry::Point robot_position =
+    //         world_state()->get_robot(true, robot_id_).pose.position();
+    //     rj_geometry::Point ball_position = world_state()->ball.position;
+    //     double distance_to_ball = robot_position.dist_to(ball_position);
+    //     if (distance_to_ball > max_receive_distance && !chasing_ball) {
+    //         auto motion_instance =
+    //             planning::LinearMotionInstant{robot_position, rj_geometry::Point{0.0, 0.0}};
+    //         auto face_ball = planning::FaceBall{};
+    //         auto face_ball_cmd = planning::MotionCommand{"path_target", motion_instance, face_ball};
+    //         intent.motion_command = face_ball_cmd;
+    //     } else {
+    //         // intercept the ball
+    //         chasing_ball = true;
+    //         auto collect_cmd = planning::MotionCommand{"collect"};
+    //         intent.motion_command = collect_cmd;
+    //     }
+    //     return intent;
+    // } else if (current_state_ == PASSING) {
+    //     // attempt to pass the ball to the target robot
+    //     rj_geometry::Point target_robot_pos =
+    //         world_state()->get_robot(true, target_robot_id).pose.position();
+    //     planning::LinearMotionInstant target{target_robot_pos};
+    //     auto line_kick_cmd = planning::MotionCommand{"line_kick", target};
+    //     intent.motion_command = line_kick_cmd;
+    //     intent.shoot_mode = RobotIntent::ShootMode::KICK;
+    //     // NOTE: Check we can actually use break beams
+    //     intent.trigger_mode = RobotIntent::TriggerMode::ON_BREAK_BEAM;
+    //     // TODO: Adjust the kick speed based on distance
+    //     intent.kick_speed = 4.0;
+    //     intent.is_active = true;
+    //     return intent;
+    // } else if (current_state_ == WALLING) {
+    //     if (!walling_robots_.empty()) {
+    //         Waller waller{waller_id_, (int)walling_robots_.size()};
+    //         return waller.get_task(intent, world_state(), this->field_dimensions_);
+    //     }
+    // } else if (current_state_ = FACING) {
+    //     rj_geometry::Point robot_position =
+    //         world_state()->get_robot(true, robot_id_).pose.position();
+    //     auto current_location_instant =
+    //         planning::LinearMotionInstant{robot_position, rj_geometry::Point{0.0, 0.0}};
+    //     auto face_ball = planning::FaceBall{};
+    //     auto face_ball_cmd =
+    //         planning::MotionCommand{"path_target", current_location_instant, face_ball};
+    //     intent.motion_command = face_ball_cmd;
+    //     return intent;
+    // }
+
+    // return std::nullopt;
 }
 
 void Defense::receive_communication_response(communication::AgentPosResponseWrapper response) {

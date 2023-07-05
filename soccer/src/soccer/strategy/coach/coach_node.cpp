@@ -159,22 +159,27 @@ void CoachNode::assign_positions() {
     std::array<uint32_t, kNumShells> positions{};
     positions[goalie_id_] = Positions::Goalie;
 
-    switch (current_play_state_.restart) {
-        case PlayState::Restart::Penalty:
-            assign_positions_penalty(positions);
-            break;
-        case PlayState::Restart::Kickoff:
-            assign_positions_kickoff(positions);
-            break;
-        case PlayState::Restart::Free:
-            assign_positions_freekick(positions);
-        case PlayState::Restart::Placement:
-            // TODO: Placement Position Assignment
-        case PlayState::Restart::None:
-        default:
-            // Normal Play
-            assign_positions_normal(positions);
+    /* TESTING: LINE RUNNER */
+    for (int i = 0; i < kNumShells; ++i) {
+        positions[i] = Positions::Defense;
     }
+
+    // switch (current_play_state_.restart) {
+    //     case PlayState::Restart::Penalty:
+    //         assign_positions_penalty(positions);
+    //         break;
+    //     case PlayState::Restart::Kickoff:
+    //         assign_positions_kickoff(positions);
+    //         break;
+    //     case PlayState::Restart::Free:
+    //         assign_positions_freekick(positions);
+    //     case PlayState::Restart::Placement:
+    //         // TODO: Placement Position Assignment
+    //     case PlayState::Restart::None:
+    //     default:
+    //         // Normal Play
+    //         assign_positions_normal(positions);
+    // }
 
     positions_message.client_positions = positions;
     positions_pub_->publish(positions_message);
