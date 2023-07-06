@@ -32,12 +32,20 @@ Goalie::State Goalie::update_state() {
 
     bool in_box = this->field_dimensions_.our_defense_area().contains_point(robot_position);
 
-    if (!in_box) {
-        return NOT_IN_BOX;
-    }
+    float box_w{this->field_dimensions_.penalty_long_dist()};
+    float box_h{this->field_dimensions_.penalty_short_dist()};
+    float line_w{this->field_dimensions_.line_width()};
+    double min_wall_rad{(kRobotRadius * 4.0f) + line_w +
+                        hypot(static_cast<double>(box_w) / 2, static_cast<double>((box_h)))};
 
     if (shot_on_goal_detected(world_state)) {
         return BLOCKING;
+    }
+
+    if (!in_box && latest_state_ != SIDE_CLEAR && !ball_in_box) {
+        return NOT_IN_BOX;
+    } else if (!ball_in_box && ball_pt.mag() < min_wall_rad) {
+        return SIDE_CLEAR;
     }
 
     if (latest_state_ == BALL_NOT_FOUND) {
@@ -45,20 +53,24 @@ Goalie::State Goalie::update_state() {
             return IDLING;
         }
     } else if (latest_state_ == BLOCKING) {
-        if (ball_in_box && ball_is_slow) {
+        if (ball_pt.mag() < min_wall_rad && ball_is_slow) {
             return PREPARING_SHOT;
         } else if (check_is_done() || !ball_in_box) {
             return IDLING;
         }
     } else if (latest_state_ == CLEARING) {
+        SPDLOG_INFO("CLEARING");
+        SPDLOG_INFO("Ball in Box: {}", ball_in_box);
         if (check_is_done() || !ball_in_box) {
             return IDLING;
         }
     } else if (latest_state_ == PREPARING_SHOT) {
-        if (check_is_done() || !ball_in_box) {
-            return CLEARING;
-        } else if (!ball_in_box) {
+        if (ball_pt.mag() > min_wall_rad) {
             return IDLING;
+        } else if (check_is_done() && ball_in_box) {
+            return CLEARING;
+        } else if (check_is_done() && !ball_in_box) {
+            return SIDE_CLEAR;
         }
     } else if (latest_state_ == NOT_IN_BOX) {
         if (in_box) {
@@ -67,6 +79,13 @@ Goalie::State Goalie::update_state() {
     } else if (latest_state_ == IDLING) {
         if (ball_in_box) {
             return PREPARING_SHOT;
+        }
+    } else if (latest_state_ == SIDE_CLEAR) {
+        SPDLOG_INFO("SIDE CLEAR");
+        if (ball_in_box) {
+            return PREPARING_SHOT;
+        } else if (check_is_done() || distance_to_ball > 0.2) {
+            return IDLING;
         }
     }
 
@@ -149,6 +168,28 @@ std::optional<RobotIntent> Goalie::state_to_task(RobotIntent intent) {
     } else if (latest_state_ == IDLING) {
         intent.motion_command = planning::MotionCommand{"goalie_idle"};
         return intent;
+    } else if (latest_state_ == SIDE_CLEAR) {
+        if (this->world_state()->our_robots.at(robot_id_).pose.position().x() < 0.0) {
+            rj_geometry::Point target_pt = this->field_dimensions_.center_point() + this->field_dimensions_.our_right_corner();
+            planning::LinearMotionInstant target{target_pt};
+            auto line_kick_cmd = planning::MotionCommand{"line_kick", target};
+            intent.motion_command = line_kick_cmd;
+            intent.shoot_mode = RobotIntent::ShootMode::CHIP;
+            intent.trigger_mode = RobotIntent::TriggerMode::ON_BREAK_BEAM;
+            intent.kick_speed = 3.0;
+            intent.is_active = true;
+            return intent;
+        } else {
+            rj_geometry::Point target_pt = this->field_dimensions_.center_point() + this->field_dimensions_.our_left_corner();
+            planning::LinearMotionInstant target{target_pt};
+            auto line_kick_cmd = planning::MotionCommand{"line_kick", target};
+            intent.motion_command = line_kick_cmd;
+            intent.shoot_mode = RobotIntent::ShootMode::CHIP;
+            intent.trigger_mode = RobotIntent::TriggerMode::ON_BREAK_BEAM;
+            intent.kick_speed = 3.0;
+            intent.is_active = true;
+            return intent;
+        }
     }
 
     // should be impossible to reach, but this is equivalent to

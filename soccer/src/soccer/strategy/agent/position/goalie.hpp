@@ -46,6 +46,7 @@ private:
         CLEARING,        // clearing the ball out of the goal box
         PREPARING_SHOT,  // pivot around ball in preparation for shot
         BALL_NOT_FOUND,  // the ball is not in play
+        SIDE_CLEAR,      // clear the ball to the side because of wallers
     };
 
     bool check_ball_in_box(WorldState* world_state) {
