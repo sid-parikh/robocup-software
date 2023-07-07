@@ -74,8 +74,9 @@ Offense::State Offense::update_state() {
         }
     }
 
-    if (this->field_dimensions_.their_defense_area_padded(0.3).contains_point(world_state->ball.position)
-    || this->field_dimensions_.our_defense_area().contains_point(world_state->ball.position)) {
+    if (this->field_dimensions_.their_defense_area_padded(0.3).contains_point(
+            world_state->ball.position) ||
+        this->field_dimensions_.our_defense_area().contains_point(world_state->ball.position)) {
         next_state = MARKING;
         marking_timeout_ = RJ::now() + RJ::Seconds(1);
     }

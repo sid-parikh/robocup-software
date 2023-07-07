@@ -23,10 +23,9 @@
 #include "strategy/agent/position/defense.hpp"
 #include "strategy/agent/position/goalie.hpp"
 #include "strategy/agent/position/offense.hpp"
+#include "strategy/agent/position/penalty_goalie.hpp"
 #include "strategy/agent/position/position.hpp"
 #include "strategy/agent/position/their_side_lineup.hpp"
-#include "strategy/agent/position/penalty_goalie.hpp"
-
 
 namespace strategy {
 enum MatchSituation {
@@ -38,7 +37,15 @@ enum MatchSituation {
     in_play,         // normal play
 };
 
-enum Positions { Goalie, Defense, Offense, PenaltyPlayer, GoalKicker, TheirSideLineup, PenaltyGoalie };
+enum Positions {
+    Goalie,
+    Defense,
+    Offense,
+    PenaltyPlayer,
+    GoalKicker,
+    TheirSideLineup,
+    PenaltyGoalie
+};
 
 // These values are explicitly declared because they are the ints that are published to
 // strategy/positions i.e. the same values as strategy::Positions
@@ -166,7 +173,7 @@ private:
     bool check_robot_alive(u_int8_t robot_id);
 
     u_int8_t offense_one_ = 1;
-    u_int8_t offense_two_ = 2;
+    u_int8_t offense_two_ = 0;
 };
 
 }  // namespace strategy

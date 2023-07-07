@@ -47,8 +47,8 @@ Trajectory GoalieIdlePathPlanner::plan(const PlanRequest& plan_request) {
 
 rj_geometry::Point GoalieIdlePathPlanner::get_idle_pt(const WorldState* world_state) {
     rj_geometry::Point ball_pos = world_state->ball.position;
-    // TODO(Kevin): make this depend on team +/-x
-    rj_geometry::Point goal_pt{0.0, 0.0};
+    rj_geometry::Point goal_pt{0.0, 0.0};  // our coords are always 0,0
+                                           // for our goal :)
 
     double goalie_dist = 0.5;
     rj_geometry::Point idle_pt = (ball_pos - goal_pt).norm();

@@ -122,7 +122,7 @@ std::optional<RobotIntent> Defense::state_to_task(RobotIntent intent) {
         intent.motion_command = face_ball_cmd;
         return intent;
     } else if (current_state_ == MARKING) {
-        RobotMarker marker{(u_int8_t) this->robot_id_};
+        RobotMarker marker{(u_int8_t)this->robot_id_};
         return marker.get_task(intent, world_state(), this->field_dimensions_);
     }
 

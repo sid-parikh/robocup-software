@@ -15,8 +15,8 @@
 #include "rj_constants/constants.hpp"
 #include "rj_geometry/geometry_conversions.hpp"
 #include "rj_geometry/point.hpp"
-#include "waller.hpp"
 #include "robot_marker.hpp"
+#include "waller.hpp"
 
 namespace strategy {
 

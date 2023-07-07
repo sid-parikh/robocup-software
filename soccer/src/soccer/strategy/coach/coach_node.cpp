@@ -189,7 +189,6 @@ void CoachNode::assign_positions() {
 }
 
 void CoachNode::assign_positions_penalty(std::array<uint32_t, kNumShells>& positions) {
-
     positions[goalie_id_] = Positions::PenaltyGoalie;
 
     for (size_t i = 0; i < kNumShells; i++) {
