@@ -122,17 +122,6 @@ test-soccer:
 test-soccer-nobuild:
 	./install/lib/rj_robocup/test-soccer --gtest_filter=$(TESTS)
 
-test-python: perf
-	python3 -m pytest --cov rj_gameplay --cov stp rj_gameplay --cov-report xml
-
-# could be useful in mypy GH Actions but unused
-pylint:
-	pylint -j0 rj_gameplay/rj_gameplay rj_gameplay/stp
-
-# could be useful in mypy GH Actions but unused
-mypy:
-	mypy --ignore-missing-imports rj_gameplay/rj_gameplay rj_gameplay/stp
-
 COV_BUILD_DIR=build/coverage
 coverage:
 	mkdir -p ${COV_BUILD_DIR}

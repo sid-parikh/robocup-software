@@ -29,12 +29,6 @@ extensions = [
     "autoapi.extension",
 ]
 
-# -- AutoAPI Configuration ---------------------------------------------------
-# (Python-only auto-api generation)
-# https://github.com/readthedocs/sphinx-autoapi
-autoapi_type = "python"
-autoapi_dirs = ["../../rj_gameplay"]
-
 # -- Breathe Configuration ---------------------------------------------------
 breathe_projects = {}
 breathe_default_project = "rj_robocup"
