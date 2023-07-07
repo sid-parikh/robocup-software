@@ -30,6 +30,10 @@ add_definitions(-DQT_NO_KEYWORDS) # Remove QT slots/signals/emit keywords
 find_package(Protobuf REQUIRED)
 include_directories(SYSTEM ${PROTOBUF_INCLUDE_DIR})
 
+# Python
+find_package(PythonInterp 3.2 REQUIRED)
+find_package(PythonLibs 3.2 REQUIRED)
+
 # Eigen - used for linear algebra
 find_package(Eigen3 REQUIRED)
 
@@ -98,6 +102,7 @@ add_subdirectory(src)
 set(ROBOCUP_DEPS_SYSTEM_INCLUDE_DIRS
         ${EIGEN_INCLUDE_DIRS}
         ${LIBUSB_1_INCLUDE_DIRS}
+        ${PYTHON_INCLUDE_DIRS}
         ${RRT_INCLUDE_DIR}
         ${SDL2_INCLUDE_DIRS})
 
@@ -108,6 +113,8 @@ set(ROBOCUP_DEPS_SYSTEM_LIBRARIES
     GL
     GLU
     glut
+    ${PYTHON_LINK_DIRS}
+    ${PYTHON_LIBRARIES}
     Qt5::Widgets
     Qt5::Xml
     Qt5::Core
