@@ -170,7 +170,7 @@ void CoachNode::assign_positions() {
             assign_positions_kickoff(positions);
             break;
         case PlayState::Restart::Free:
-            assign_positions_penalty(positions);
+            assign_positions_kickoff(positions);
             break;
         case PlayState::Restart::Placement:
             // TODO: Placement Position Assignment
