@@ -184,6 +184,9 @@ void AgentActionClient::update_position(const rj_msgs::msg::PositionAssignment::
         case 5:
             next_position_ = std::make_unique<TheirSideLineup>(robot_id_);
             break;
+        case 6:
+            next_position_ = std::make_unique<PenaltyGoalie>(robot_id_);
+            break;
     };
 
     if (current_position_ == nullptr) {

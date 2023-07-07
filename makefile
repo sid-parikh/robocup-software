@@ -82,7 +82,7 @@ run-sim-ex: run-sim-external
 
 # run on real field computer with real robots and internal ref (our UI)
 run-real:
-	ros2 launch rj_robocup soccer.launch.py run_sim:=False use_sim_radio:=False
+	ros2 launch rj_robocup soccer.launch.py run_sim:=False use_sim_radio:=Falsed
 
 # run on real field computer with real robots and external ref (SSL GC)
 run-real-ex:
