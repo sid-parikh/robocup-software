@@ -113,8 +113,8 @@ run-real2play:
 
 run-real2: run-real2play
 
-# Run both C++ and python unit tests
-tests: test-cpp test-python
+# Run C++ unit tests
+tests: test-cpp
 test-cpp: test-soccer
 test-soccer:
 	$(call cmake_build_target, test-soccer)
@@ -186,7 +186,7 @@ else
 	CORES=$(shell nproc)
 endif
 
-# Restyles all C++ (Clang formatter) excluding files in the external and build folders. For Python, run black rj_gameplay.
+# Restyles all C++ (Clang formatter) excluding files in the external and build folders. 
 pretty-lines:
 	@git diff -U0 --no-color $(DIFFBASE) | python3 util/clang-format-diff.py -binary $(CLANG_FORMAT_BINARY) -i -p1
 
