@@ -80,9 +80,13 @@ set(ROBOCUP_LIB_SRC
     strategy/agent/position/goalie.cpp
     strategy/agent/position/offense.cpp
     strategy/agent/position/defense.cpp
+    strategy/agent/position/marker.cpp
     strategy/agent/position/waller.cpp
     strategy/agent/position/goal_kicker.cpp
     strategy/agent/position/penalty_player.cpp
+    strategy/agent/position/robot_marker.cpp
+    strategy/agent/position/their_side_lineup.cpp
+
         )
 
 set(SOCCER_TEST_SRC
